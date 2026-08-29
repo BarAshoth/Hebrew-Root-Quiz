@@ -2,14 +2,10 @@ import streamlit as st
 import random
 import re
 
-# Custom styling for maximum vertical compactness with a spacious top margin
+# Custom styling that respects the user's local system preferences (Light vs Dark Mode)
 st.markdown("""
     <style>
-    /* Sky Blue Theme Background */
-    [data-testid="stAppViewContainer"], .stApp {
-        background-color: #E0F2FE !important;
-    }
-    /* Increased top padding for a much more comfortable header margin */
+    /* Relaxed top padding for a comfortable header margin */
     .block-container {
         padding-top: 5rem !important;
         padding-bottom: 1rem !important;
@@ -20,12 +16,11 @@ st.markdown("""
         padding-bottom: 0px !important;
         font-size: 28px !important;
     }
-    /* English Question Styling */
+    /* English Question Styling - Using universal text color variables */
     .english-question { 
         font-size: 22px !important; 
         font-weight: bold; 
         text-align: center; 
-        color: #1E3A8A; 
         margin: 12px 0 !important; 
     }
     /* Make the radio button Hebrew choices large and crisp */
@@ -33,7 +28,7 @@ st.markdown("""
     .stButton button { width: 100%; }
     
     /* Minimize spacing inside the columns */
-    [data-testid="stVerticalBlock"] {
+    data-testid="stVerticalBlock"] {
         gap: 0.5rem !important;
     }
     </style>
@@ -52,17 +47,16 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        root_hebrew = match[0].strip()
-        root_english = match[1].strip()
-        surface_hebrew = match[2].strip()
-        surface_translit = match[3].strip()
-        surface_meaning = match[4].strip()
-        phonetic = match[5].strip()
-        root_meaning = match[6].strip()
+        root_hebrew = match.strip()
+        root_english = match.strip()
+        surface_hebrew = match.strip()
+        surface_translit = match.strip()
+        surface_meaning = match.strip()
+        phonetic = match.strip()
+        root_meaning = match.strip()
         
         full_root_string = root_hebrew
         
-        # UPDATED: Implemented your custom text layout to give the perfect non-giveaway transliteration hint
         quiz_items.append({
             "english_meaning": surface_meaning,
             "correct_root": full_root_string,
