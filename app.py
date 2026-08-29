@@ -24,7 +24,6 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        # FIXED: Correctly unpacking each individual index from the tuple package
         root_hebrew = match[0].strip()
         root_english = match[1].strip()
         surface_hebrew = match[2].strip()
@@ -35,12 +34,13 @@ def parse_hebrew_markdown(file_path):
         
         full_root_string = root_hebrew
         
+        # FIXED: Rephrased to make it crystal clear that the phonetic guide is for the contextual surface word
         quiz_items.append({
             "english_meaning": surface_meaning,
             "correct_root": full_root_string,
             "transliteration": surface_translit,
             "surface_word": surface_hebrew,
-            "hint": f"The hidden root word means: '{root_meaning}' and is pronounced like '{phonetic}'.",
+            "hint": f"The hidden root word means: '{root_meaning}'. The word in context is pronounced like '{phonetic}'.",
             "explanation": f"The root is {full_root_string} ({root_english}), which means '{root_meaning}'. It appeared in the text as the surface word '{surface_hebrew}' ({surface_translit})."
         })
     return quiz_items
