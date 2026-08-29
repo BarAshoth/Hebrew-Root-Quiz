@@ -172,7 +172,7 @@ Verse 9: "Then God said, 'Let the waters under the heavens be gathered together 
     - _The Surface Word:_ יִקָּווּ (_Yikavu_ / "Let them be gathered together")
     - _Phonetic Pronunciation:_ **kah-VAH**
     - _The Raw Root Meaning:_ **To bind, twist together, collect, or wait expectantly.** It carries the vivid physical imagery of twisting raw fibers tightly together to form a strong cord. In reference to water, it means binding independent drops into a single, massive collective pool.
-- **מָקוֹם (M-K-M)**
+- **קוּם (M-K-M)**
     - _The Surface Word:_ מָקוֹם (_Makom_ / "Place")
     - _Phonetic Pronunciation:_ **mah-KOHM**
     - _The Raw Root Meaning:_ **To stand up, rise, or fix into a position.** Derived from the root _Koom_ ("to stand"). A "place" is not just abstract space; it is a fixed, established station where things are set upright and anchored.
