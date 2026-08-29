@@ -15,7 +15,6 @@ st.markdown("""
 def parse_hebrew_markdown(file_path):
     quiz_items = []
     try:
-        # Looks in the local folder where the script lives
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
     except FileNotFoundError:
@@ -25,13 +24,13 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        root_hebrew = match[0].strip()
-        root_english = match[1].strip()
-        surface_hebrew = match[2].strip()
-        surface_translit = match[3].strip()
-        surface_meaning = match[4].strip()
-        phonetic = match[5].strip()
-        root_meaning = match[6].strip()
+        root_hebrew = match.strip()
+        root_english = match.strip()
+        surface_hebrew = match.strip()
+        surface_translit = match.strip()
+        surface_meaning = match.strip()
+        phonetic = match.strip()
+        root_meaning = match.strip()
         
         full_root_string = root_hebrew
         
@@ -47,7 +46,6 @@ def parse_hebrew_markdown(file_path):
 
 # --- INITIALIZE SESSION STATE ---
 if "quiz_data" not in st.session_state:
-    # Look for the file in the exact same cloud folder
     RAW_DATA = parse_hebrew_markdown("GenesisRootWordLexicon1.md")
     
     random.shuffle(RAW_DATA)
@@ -94,8 +92,8 @@ elif st.session_state.current_index < len(QUIZ_DATA):
     
     st.markdown(f'<div class="english-question">What is the Hebrew root for the word translated as: <br>🔍 "{current_q["english_meaning"]}"</div>', unsafe_allow_html=True)
     
-    # Using dynamic columns that adapt smoothly to small phone screens
-    main_col1, main_col2 = st.columns([1, 1] if st.viewport.width > 600 else 1)
+    # FIXED: Replaced the broken check with a standard clean dual-column layout
+    main_col1, main_col2 = st.columns(2)
     
     with main_col1:
         choice = st.radio("Select the correct Hebrew Root word:", current_q["options"], key=f"radio_{st.session_state.current_index}")
