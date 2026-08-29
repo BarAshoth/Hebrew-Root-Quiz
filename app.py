@@ -2,16 +2,16 @@ import streamlit as st
 import random
 import re
 
-# Custom styling for maximum vertical compactness with a comfortable top margin
+# Custom styling for maximum vertical compactness with a spacious top margin
 st.markdown("""
     <style>
     /* Sky Blue Theme Background */
     [data-testid="stAppViewContainer"], .stApp {
         background-color: #E0F2FE !important;
     }
-    /* Relaxed top padding for a comfortable header margin */
+    /* Increased top padding for a much more comfortable header margin */
     .block-container {
-        padding-top: 3rem !important;
+        padding-top: 5rem !important;
         padding-bottom: 1rem !important;
     }
     /* Compact Header */
@@ -62,13 +62,13 @@ def parse_hebrew_markdown(file_path):
         
         full_root_string = root_hebrew
         
-        # FIXED: Removed the pronunciation line completely to avoid formatting and factual confusion
+        # UPDATED: Implemented your custom text layout to give the perfect non-giveaway transliteration hint
         quiz_items.append({
             "english_meaning": surface_meaning,
             "correct_root": full_root_string,
             "transliteration": surface_translit,
             "surface_word": surface_hebrew,
-            "hint": f"The full word in the verse text is:  \n✨ **{surface_hebrew}** ({surface_translit})",
+            "hint": f"The word from the Hebrew text is transliterated as:  \n✨ **{surface_translit}**",
             "explanation": f"The root is {full_root_string} ({root_english}), which means '{root_meaning}'. It appeared in the text as the surface word '{surface_hebrew}' ({surface_translit})."
         })
     return quiz_items
