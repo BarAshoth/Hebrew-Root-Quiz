@@ -2,16 +2,16 @@ import streamlit as st
 import random
 import re
 
-# Custom styling for maximum vertical compactness to prevent scrolling
+# Custom styling for maximum vertical compactness with a comfortable top margin
 st.markdown("""
     <style>
     /* Sky Blue Theme Background */
     [data-testid="stAppViewContainer"], .stApp {
         background-color: #E0F2FE !important;
     }
-    /* Tighten up the main block padding */
+    /* Relaxed top padding for a comfortable header margin */
     .block-container {
-        padding-top: 1.5rem !important;
+        padding-top: 3rem !important;
         padding-bottom: 1rem !important;
     }
     /* Compact Header */
@@ -26,7 +26,7 @@ st.markdown("""
         font-weight: bold; 
         text-align: center; 
         color: #1E3A8A; 
-        margin: 8px 0 !important; 
+        margin: 12px 0 !important; 
     }
     /* Make the radio button Hebrew choices large and crisp */
     div[data-testid="stMarkdownContainer"] p { font-size: 20px !important; }
@@ -62,13 +62,13 @@ def parse_hebrew_markdown(file_path):
         
         full_root_string = root_hebrew
         
-        # CHANGED: The hint now explicitly gives you the raw surface word text to break down!
+        # FIXED: Removed the pronunciation line completely to avoid formatting and factual confusion
         quiz_items.append({
             "english_meaning": surface_meaning,
             "correct_root": full_root_string,
             "transliteration": surface_translit,
             "surface_word": surface_hebrew,
-            "hint": f"The full word in the verse text is:  \n✨ **{surface_hebrew}** ({surface_translit})  \n*(Pronounced like: '{phonetic}')*",
+            "hint": f"The full word in the verse text is:  \n✨ **{surface_hebrew}** ({surface_translit})",
             "explanation": f"The root is {full_root_string} ({root_english}), which means '{root_meaning}'. It appeared in the text as the surface word '{surface_hebrew}' ({surface_translit})."
         })
     return quiz_items
