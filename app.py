@@ -2,22 +2,40 @@ import streamlit as st
 import random
 import re
 
-# Custom styling for a soft background theme and crisp layout
+# Custom styling for maximum vertical compactness to prevent scrolling
 st.markdown("""
     <style>
-    /* Guaranteed Sky Blue Theme Background */
+    /* Sky Blue Theme Background */
     [data-testid="stAppViewContainer"], .stApp {
         background-color: #E0F2FE !important;
     }
+    /* Tighten up the main block padding */
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1rem !important;
+    }
+    /* Compact Header */
+    h1 {
+        margin-bottom: 0px !important;
+        padding-bottom: 0px !important;
+        font-size: 28px !important;
+    }
+    /* English Question Styling */
     .english-question { 
-        font-size: 24px !important; 
+        font-size: 22px !important; 
         font-weight: bold; 
         text-align: center; 
         color: #1E3A8A; 
-        margin: 15px 0; 
+        margin: 8px 0 !important; 
     }
+    /* Make the radio button Hebrew choices large and crisp */
     div[data-testid="stMarkdownContainer"] p { font-size: 20px !important; }
     .stButton button { width: 100%; }
+    
+    /* Minimize spacing inside the columns */
+    [data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -44,13 +62,13 @@ def parse_hebrew_markdown(file_path):
         
         full_root_string = root_hebrew
         
-        # RESTORED: Explicitly highlights that the pronunciation guide maps to the contextual verse word
+        # CHANGED: The hint now explicitly gives you the raw surface word text to break down!
         quiz_items.append({
             "english_meaning": surface_meaning,
             "correct_root": full_root_string,
             "transliteration": surface_translit,
             "surface_word": surface_hebrew,
-            "hint": f"The hidden root word means: '{root_meaning}'. The word in context is pronounced like '{phonetic}'.",
+            "hint": f"The full word in the verse text is:  \n✨ **{surface_hebrew}** ({surface_translit})  \n*(Pronounced like: '{phonetic}')*",
             "explanation": f"The root is {full_root_string} ({root_english}), which means '{root_meaning}'. It appeared in the text as the surface word '{surface_hebrew}' ({surface_translit})."
         })
     return quiz_items
@@ -58,7 +76,6 @@ def parse_hebrew_markdown(file_path):
 # --- INITIALIZE SESSION STATE ---
 if "quiz_data" not in st.session_state:
     RAW_DATA = parse_hebrew_markdown("GenesisRootWordLexicon1.md")
-    
     random.shuffle(RAW_DATA)
     
     QUIZ_DATA = []
@@ -89,8 +106,7 @@ if "answered" not in st.session_state:
 
 # --- STREAMLIT UI ENGINE ---
 st.title("📖 Genesis Chapter 1 Root Recall")
-st.write("Look at the English meaning and select the correct hidden **Hebrew Root**.")
-st.divider()
+st.caption("Select the correct hidden Hebrew Root based on the English meaning.")
 
 QUIZ_DATA = st.session_state.quiz_data
 
@@ -101,13 +117,13 @@ elif st.session_state.current_index < len(QUIZ_DATA):
     
     st.caption(f"Question {st.session_state.current_index + 1} of {len(QUIZ_DATA)} | Score: {st.session_state.score}")
     
+    # Question Card
     st.markdown(f'<div class="english-question">What is the Hebrew root for the word translated as: <br>🔍 "{current_q["english_meaning"]}"</div>', unsafe_allow_html=True)
     
     main_col1, main_col2 = st.columns(2)
     
     with main_col1:
         choice = st.radio("Select the correct Hebrew Root word:", current_q["options"], key=f"radio_{st.session_state.current_index}")
-        st.write("") 
         
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
@@ -134,7 +150,7 @@ elif st.session_state.current_index < len(QUIZ_DATA):
             else:
                 st.error(f"❌ Not quite.\n\n{current_q['explanation']}")
         else:
-            with st.expander("💡 Need a Hint?", expanded=False):
+            with st.expander("💡 Reveal Surface Word Hint", expanded=False):
                 st.info(current_q["hint"])
 else:
     st.balloons()
