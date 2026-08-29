@@ -24,13 +24,14 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        root_hebrew = match.strip()
-        root_english = match.strip()
-        surface_hebrew = match.strip()
-        surface_translit = match.strip()
-        surface_meaning = match.strip()
-        phonetic = match.strip()
-        root_meaning = match.strip()
+        # FIXED: Correctly unpacking each individual index from the tuple package
+        root_hebrew = match[0].strip()
+        root_english = match[1].strip()
+        surface_hebrew = match[2].strip()
+        surface_translit = match[3].strip()
+        surface_meaning = match[4].strip()
+        phonetic = match[5].strip()
+        root_meaning = match[6].strip()
         
         full_root_string = root_hebrew
         
@@ -92,7 +93,6 @@ elif st.session_state.current_index < len(QUIZ_DATA):
     
     st.markdown(f'<div class="english-question">What is the Hebrew root for the word translated as: <br>🔍 "{current_q["english_meaning"]}"</div>', unsafe_allow_html=True)
     
-    # FIXED: Replaced the broken check with a standard clean dual-column layout
     main_col1, main_col2 = st.columns(2)
     
     with main_col1:
