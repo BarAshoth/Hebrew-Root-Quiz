@@ -2,10 +2,20 @@ import streamlit as st
 import random
 import re
 
-# Custom styling for clean, compact layout across mobile and desktop
+# Custom styling for a soft background theme and crisp layout
 st.markdown("""
     <style>
-    .english-question { font-size: 24px !important; font-weight: bold; text-align: center; color: #1E3A8A; margin: 15px 0; }
+    /* Guaranteed Sky Blue Theme Background */
+    [data-testid="stAppViewContainer"], .stApp {
+        background-color: #E0F2FE !important;
+    }
+    .english-question { 
+        font-size: 24px !important; 
+        font-weight: bold; 
+        text-align: center; 
+        color: #1E3A8A; 
+        margin: 15px 0; 
+    }
     div[data-testid="stMarkdownContainer"] p { font-size: 20px !important; }
     .stButton button { width: 100%; }
     </style>
@@ -34,7 +44,7 @@ def parse_hebrew_markdown(file_path):
         
         full_root_string = root_hebrew
         
-        # FIXED: Rephrased to make it crystal clear that the phonetic guide is for the contextual surface word
+        # RESTORED: Explicitly highlights that the pronunciation guide maps to the contextual verse word
         quiz_items.append({
             "english_meaning": surface_meaning,
             "correct_root": full_root_string,
