@@ -5,9 +5,9 @@ import re
 # Custom styling for high-density mobile views and theme adaptability
 st.markdown("""
     <style>
-    /* Compact top padding to maximize vertical real estate */
+    /* INCREASED TOP PADDING: Safely pushes content down so it never clips the browser header */
     .block-container {
-        padding-top: 2.5rem !important;
+        padding-top: 5.5rem !important;
         padding-bottom: 1rem !important;
     }
     
@@ -52,6 +52,17 @@ st.markdown("""
     div[data-testid="column"] {
         padding-left: 2px !important;
         padding-right: 2px !important;
+    }
+    
+    /* NEW: Centers the Begin Quiz button column beautifully on the front page */
+    div.element-container:has(button[key="start_game_btn"]) {
+        display: flex;
+        justify-content: center;
+    }
+    button[key="start_game_btn"] {
+        width: auto !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
     }
     
     /* Minimize inner system padding gaps */
@@ -140,7 +151,6 @@ if not QUIZ_DATA:
 elif not st.session_state.quiz_started:
     st.write("") 
     st.markdown('<div class="start-title">📖 Genesis Chapter 1<br>Root Recall</div>', unsafe_allow_html=True)
-    # ADDED: Standardized instructions moved permanently onto the landing page header
     st.markdown('<div class="start-subtitle">Look at the English meaning and select the correct hidden Hebrew Root word from the choices below. Extract the three-letter Shoresh out of the verse surface text.</div>', unsafe_allow_html=True)
     
     if st.button("🚀 Begin Quiz", key="start_game_btn"):
@@ -160,7 +170,6 @@ elif st.session_state.current_index < len(QUIZ_DATA):
     main_col1, main_col2 = st.columns(2)
     
     with main_col1:
-        # FIXED: Removed the redundant subtitle string from above the radio container
         choice = st.radio("", current_q["options"], key=f"radio_{st.session_state.current_index}", label_visibility="collapsed")
         
         btn_col1, btn_col2 = st.columns(2)
