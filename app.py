@@ -5,9 +5,9 @@ import re
 # Custom styling for high-density mobile views and theme adaptability
 st.markdown("""
     <style>
-    /* INCREASED TOP PADDING: Pushes content down past the invisible browser toolbar ceiling */
+    /* Compact top padding to maximize vertical real estate */
     .block-container {
-        padding-top: 4.5rem !important;
+        padding-top: 2.5rem !important;
         padding-bottom: 1rem !important;
     }
     
@@ -44,7 +44,15 @@ st.markdown("""
     
     /* Make choice lists matching and clear */
     div[data-testid="stMarkdownContainer"] p { font-size: 19px !important; }
-    .stButton button { width: 100%; }
+    
+    /* FORCE BUTTONS SIDE-BY-SIDE: Fixes the mobile stacking behavior */
+    div[data-testid="column"] button {
+        width: 100% !important;
+    }
+    div[data-testid="column"] {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+    }
     
     /* Minimize inner system padding gaps */
     [data-testid="stVerticalBlock"] {
@@ -68,7 +76,6 @@ def parse_hebrew_markdown(file_path):
     pattern = r"-\s+\*\*([^*]+)\s+\(([^)]+)\)\*\*\s+-\s+_The Surface Word:_\s+([^_]+)\s+\(([^/]+)/\s*\"([^\"]+)\"\)\s+-\s+_Phonetic Pronunciation:_\s+\*\*([^*]+)\*\*\s+-\s+_The Raw Root Meaning:_\s+\*\*([^*]+)\*\*"
     matches = re.findall(pattern, content)
     
-    # FIXED: Cleanly unpacking all 7 variables directly in the loop head to completely eliminate the tuple bug!
     for r_heb, r_eng, s_heb, s_trans, s_mean, phon, r_mean in matches:
         root_hebrew = r_heb.strip()
         root_english = r_eng.strip()
@@ -133,7 +140,8 @@ if not QUIZ_DATA:
 elif not st.session_state.quiz_started:
     st.write("") 
     st.markdown('<div class="start-title">📖 Genesis Chapter 1<br>Root Recall</div>', unsafe_allow_html=True)
-    st.markdown('<div class="start-subtitle">Extract the hidden 3-letter Shoresh out of the verse surface text.</div>', unsafe_allow_html=True)
+    # ADDED: Standardized instructions moved permanently onto the landing page header
+    st.markdown('<div class="start-subtitle">Look at the English meaning and select the correct hidden Hebrew Root word from the choices below. Extract the three-letter Shoresh out of the verse surface text.</div>', unsafe_allow_html=True)
     
     if st.button("🚀 Begin Quiz", key="start_game_btn"):
         st.session_state.quiz_started = True
@@ -152,7 +160,8 @@ elif st.session_state.current_index < len(QUIZ_DATA):
     main_col1, main_col2 = st.columns(2)
     
     with main_col1:
-        choice = st.radio("Select the correct Hebrew Root word:", current_q["options"], key=f"radio_{st.session_state.current_index}")
+        # FIXED: Removed the redundant subtitle string from above the radio container
+        choice = st.radio("", current_q["options"], key=f"radio_{st.session_state.current_index}", label_visibility="collapsed")
         
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
