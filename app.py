@@ -16,7 +16,7 @@ st.markdown("""
         padding-bottom: 0px !important;
         font-size: 28px !important;
     }
-    /* English Question Styling - Using universal text color variables */
+    /* English Question Styling */
     .english-question { 
         font-size: 22px !important; 
         font-weight: bold; 
@@ -28,7 +28,7 @@ st.markdown("""
     .stButton button { width: 100%; }
     
     /* Minimize spacing inside the columns */
-    data-testid="stVerticalBlock"] {
+    [data-testid="stVerticalBlock"] {
         gap: 0.5rem !important;
     }
     </style>
@@ -47,13 +47,14 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        root_hebrew = match.strip()
-        root_english = match.strip()
-        surface_hebrew = match.strip()
-        surface_translit = match.strip()
-        surface_meaning = match.strip()
-        phonetic = match.strip()
-        root_meaning = match.strip()
+        # FIXED: Correctly unpacking each individual item from the tuple package one by one
+        root_hebrew = match[0].strip()
+        root_english = match[1].strip()
+        surface_hebrew = match[2].strip()
+        surface_translit = match[3].strip()
+        surface_meaning = match[4].strip()
+        phonetic = match[5].strip()
+        root_meaning = match[6].strip()
         
         full_root_string = root_hebrew
         
