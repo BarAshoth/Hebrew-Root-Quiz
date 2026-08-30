@@ -69,13 +69,14 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        root_hebrew = match.strip()
-        root_english = match.strip()
-        surface_hebrew = match.strip()
-        surface_translit = match.strip()
-        surface_meaning = match.strip()
-        phonetic = match.strip()
-        root_meaning = match.strip()
+        # FIXED: Correctly extracting each item from the row container safely
+        root_hebrew = match[0].strip()
+        root_english = match[1].strip()
+        surface_hebrew = match[2].strip()
+        surface_translit = match[3].strip()
+        surface_meaning = match[4].strip()
+        phonetic = match[5].strip()
+        root_meaning = match[6].strip()
         
         full_root_string = root_hebrew
         
@@ -119,7 +120,6 @@ if "selected_option" not in st.session_state:
     st.session_state.selected_option = None
 if "answered" not in st.session_state:
     st.session_state.answered = False
-# Session parameter to track if they passed the intro splash screen
 if "quiz_started" not in st.session_state:
     st.session_state.quiz_started = False
 
@@ -131,11 +131,10 @@ if not QUIZ_DATA:
 
 # 1. THE LANDING PAGE SPLASH SCREEN
 elif not st.session_state.quiz_started:
-    st.write("") # Tiny spacer
+    st.write("") 
     st.markdown('<div class="start-title">📖 Genesis Chapter 1<br>Root Recall</div>', unsafe_allow_html=True)
     st.markdown('<div class="start-subtitle">Extract the hidden 3-letter Shoresh out of the verse surface text.</div>', unsafe_allow_html=True)
     
-    # Beautiful, prominent landing button
     if st.button("🚀 Begin Quiz", key="start_game_btn"):
         st.session_state.quiz_started = True
         st.rerun()
@@ -144,8 +143,6 @@ elif not st.session_state.quiz_started:
 elif st.session_state.current_index < len(QUIZ_DATA):
     current_q = QUIZ_DATA[st.session_state.current_index]
     
-    # NEW COMPACT HEADER: Total clean removal of the main title block.
-    # The progress tracker matches standard body font sizing beautifully.
     st.markdown(f'<div class="progress-header">📊 Question {st.session_state.current_index + 1} of {len(QUIZ_DATA)} | Correct: {st.session_state.score}</div>', unsafe_allow_html=True)
     st.divider()
     
