@@ -2,26 +2,26 @@ import streamlit as st
 import random
 import re
 
-# Custom styling that respects the user's local system preferences (Light vs Dark Mode)
+# Custom styling for maximum vertical compactness on mobile screens
 st.markdown("""
     <style>
-    /* Relaxed top padding for a comfortable header margin */
+    /* Compact top padding so the quiz starts high up on mobile screen */
     .block-container {
-        padding-top: 5rem !important;
+        padding-top: 2rem !important;
         padding-bottom: 1rem !important;
     }
-    /* Compact Header */
+    /* Compact Header Style */
     h1 {
         margin-bottom: 0px !important;
         padding-bottom: 0px !important;
-        font-size: 28px !important;
+        font-size: 26px !important;
     }
     /* English Question Styling */
     .english-question { 
         font-size: 22px !important; 
         font-weight: bold; 
         text-align: center; 
-        margin: 12px 0 !important; 
+        margin: 8px 0 !important; 
     }
     /* Make the radio button Hebrew choices large and crisp */
     div[data-testid="stMarkdownContainer"] p { font-size: 20px !important; }
@@ -47,7 +47,6 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        # FIXED: Correctly unpacking each individual item from the tuple package one by one
         root_hebrew = match[0].strip()
         root_english = match[1].strip()
         surface_hebrew = match[2].strip()
@@ -99,18 +98,24 @@ if "selected_option" not in st.session_state:
 if "answered" not in st.session_state:
     st.session_state.answered = False
 
-# --- STREAMLIT UI ENGINE ---
-st.title("📖 Genesis Chapter 1 Root Recall")
-st.caption("Select the correct hidden Hebrew Root based on the English meaning.")
-
 QUIZ_DATA = st.session_state.quiz_data
 
+# --- DYNAMIC HEADER ENGINE ---
+# FIXED: Only shows the large welcome title on the very first question card.
+# From question 2 onwards, it collapses into a tight progress tracking header.
+if QUIZ_DATA and st.session_state.current_index == 0:
+    st.title("📖 Genesis Chapter 1 Root Recall")
+    st.caption("Select the correct hidden Hebrew Root based on the English meaning.")
+    st.divider()
+elif QUIZ_DATA and st.session_state.current_index < len(QUIZ_DATA):
+    st.subheader(f"📊 Question {st.session_state.current_index + 1} of {len(QUIZ_DATA)} | Score: {st.session_state.score}")
+    st.divider()
+
+# --- STREAMLIT UI ENGINE ---
 if not QUIZ_DATA:
     st.error("Could not find the lexicon file. Make sure GenesisRootWordLexicon1.md is in the same folder as app.py!")
 elif st.session_state.current_index < len(QUIZ_DATA):
     current_q = QUIZ_DATA[st.session_state.current_index]
-    
-    st.caption(f"Question {st.session_state.current_index + 1} of {len(QUIZ_DATA)} | Score: {st.session_state.score}")
     
     # Question Card
     st.markdown(f'<div class="english-question">What is the Hebrew root for the word translated as: <br>🔍 "{current_q["english_meaning"]}"</div>', unsafe_allow_html=True)
@@ -148,8 +153,8 @@ elif st.session_state.current_index < len(QUIZ_DATA):
             with st.expander("💡 Reveal Surface Word Hint", expanded=False):
                 st.info(current_q["hint"])
 else:
-    st.balloons()
-    st.success("🎉 You finished the vocabulary list!")
+    st.title("🎉 Quiz Complete!")
+    st.success("You finished the vocabulary list!")
     st.metric(label="Final Score", value=f"{st.session_state.score} / {len(QUIZ_DATA)}")
     
     if st.button("🔄 Restart"):
