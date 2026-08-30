@@ -5,9 +5,9 @@ import re
 # Custom styling for high-density mobile views and theme adaptability
 st.markdown("""
     <style>
-    /* INCREASED TOP PADDING: Safely pushes content down so it never clips the browser header */
+    /* Compact top padding to maximize vertical real estate */
     .block-container {
-        padding-top: 5.5rem !important;
+        padding-top: 4.5rem !important;
         padding-bottom: 1rem !important;
     }
     
@@ -45,24 +45,23 @@ st.markdown("""
     /* Make choice lists matching and clear */
     div[data-testid="stMarkdownContainer"] p { font-size: 19px !important; }
     
-    /* FORCE BUTTONS SIDE-BY-SIDE: Fixes the mobile stacking behavior */
-    div[data-testid="column"] button {
+    /* FIXED FOR MOBILE: Forces nested button columns to stay side-by-side under any condition */
+    div[data-testid="column"] div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         width: 100% !important;
     }
-    div[data-testid="column"] {
-        padding-left: 2px !important;
-        padding-right: 2px !important;
+    div[data-testid="column"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 0 !important;
     }
     
-    /* NEW: Centers the Begin Quiz button column beautifully on the front page */
-    div.element-container:has(button[key="start_game_btn"]) {
-        display: flex;
-        justify-content: center;
-    }
-    button[key="start_game_btn"] {
-        width: auto !important;
-        padding-left: 2rem !important;
-        padding-right: 2rem !important;
+    /* FIXED FOR MOBILE: Forces the Begin Quiz button to center perfectly on the front page */
+    div.stButton button {
+        margin: 0 auto !important;
+        display: block !important;
     }
     
     /* Minimize inner system padding gaps */
