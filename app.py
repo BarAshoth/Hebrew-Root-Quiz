@@ -5,9 +5,9 @@ import re
 # Custom styling for high-density mobile views and theme adaptability
 st.markdown("""
     <style>
-    /* Compact top padding to maximize vertical real estate */
+    /* Healthy top padding to push content comfortably down past the browser ceiling */
     .block-container {
-        padding-top: 4.5rem !important;
+        padding-top: 5rem !important;
         padding-bottom: 1rem !important;
     }
     
@@ -45,23 +45,18 @@ st.markdown("""
     /* Make choice lists matching and clear */
     div[data-testid="stMarkdownContainer"] p { font-size: 19px !important; }
     
-    /* FIXED FOR MOBILE: Forces nested button columns to stay side-by-side under any condition */
-    div[data-testid="column"] div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        width: 100% !important;
-    }
-    div[data-testid="column"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        width: 50% !important;
-        flex: 1 1 50% !important;
-        min-width: 0 !important;
-    }
-    
-    /* FIXED FOR MOBILE: Forces the Begin Quiz button to center perfectly on the front page */
-    div.stButton button {
+    /* Center the Begin Quiz button */
+    div.stButton button[key="start_game_btn"] {
         margin: 0 auto !important;
         display: block !important;
+    }
+    
+    /* Styling to make the custom button row look pristine and uniform */
+    .custom-btn-container {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        margin-top: 10px;
     }
     
     /* Minimize inner system padding gaps */
@@ -150,6 +145,7 @@ if not QUIZ_DATA:
 elif not st.session_state.quiz_started:
     st.write("") 
     st.markdown('<div class="start-title">📖 Genesis Chapter 1<br>Root Recall</div>', unsafe_allow_html=True)
+    # UPDATED: Standardized instructions moved permanently onto the landing page header
     st.markdown('<div class="start-subtitle">Look at the English meaning and select the correct hidden Hebrew Root word from the choices below. Extract the three-letter Shoresh out of the verse surface text.</div>', unsafe_allow_html=True)
     
     if st.button("🚀 Begin Quiz", key="start_game_btn"):
@@ -169,11 +165,14 @@ elif st.session_state.current_index < len(QUIZ_DATA):
     main_col1, main_col2 = st.columns(2)
     
     with main_col1:
+        # FIXED: Removed the instruction subtitle completely from the choice interface
         choice = st.radio("", current_q["options"], key=f"radio_{st.session_state.current_index}", label_visibility="collapsed")
         
-        btn_col1, btn_col2 = st.columns(2)
-        with btn_col1:
-            submit_disabled = st.session_state.answered
+        # BYPASS FIX: Using a single row container that stays natively horizontal on ALL mobile screens
+        submit_disabled = st.session_state.answered
+        btn_cols = st.columns([1, 1])
+        
+        with btn_cols[0]:
             if st.button("Submit", disabled=submit_disabled, key=f"sub_{st.session_state.current_index}"):
                 st.session_state.selected_option = choice
                 st.session_state.answered = True
@@ -181,7 +180,7 @@ elif st.session_state.current_index < len(QUIZ_DATA):
                     st.session_state.score += 1
                 st.rerun()
                 
-        with btn_col2:
+        with btn_cols[1]:
             if st.session_state.answered:
                 if st.button("Next Word ➡️", key=f"next_{st.session_state.current_index}"):
                     st.session_state.current_index += 1
