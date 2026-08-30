@@ -68,14 +68,15 @@ def parse_hebrew_markdown(file_path):
     pattern = r"-\s+\*\*([^*]+)\s+\(([^)]+)\)\*\*\s+-\s+_The Surface Word:_\s+([^_]+)\s+\(([^/]+)/\s*\"([^\"]+)\"\)\s+-\s+_Phonetic Pronunciation:_\s+\*\*([^*]+)\*\*\s+-\s+_The Raw Root Meaning:_\s+\*\*([^*]+)\*\*"
     matches = re.findall(pattern, content)
     
-    for match in matches:
-        root_hebrew = match.strip()
-        root_english = match.strip()
-        surface_hebrew = match.strip()
-        surface_translit = match.strip()
-        surface_meaning = match.strip()
-        phonetic = match.strip()
-        root_meaning = match.strip()
+    # FIXED: Cleanly unpacking all 7 variables directly in the loop head to completely eliminate the tuple bug!
+    for r_heb, r_eng, s_heb, s_trans, s_mean, phon, r_mean in matches:
+        root_hebrew = r_heb.strip()
+        root_english = r_eng.strip()
+        surface_hebrew = s_heb.strip()
+        surface_translit = s_trans.strip()
+        surface_meaning = s_mean.strip()
+        phonetic = phon.strip()
+        root_meaning = r_mean.strip()
         
         full_root_string = root_hebrew
         
