@@ -5,9 +5,9 @@ import re
 # Custom styling for high-density mobile views and theme adaptability
 st.markdown("""
     <style>
-    /* Ultra-tight vertical container for mobile screens */
+    /* Fixed top padding to prevent the emoji and title from clipping */
     .block-container {
-        padding-top: 1.5rem !important;
+        padding-top: 2.5rem !important;
         padding-bottom: 1rem !important;
     }
     
@@ -69,7 +69,6 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        # FIXED: Correctly extracting each item from the row container safely
         root_hebrew = match[0].strip()
         root_english = match[1].strip()
         surface_hebrew = match[2].strip()
