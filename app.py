@@ -2,34 +2,56 @@ import streamlit as st
 import random
 import re
 
-# Custom styling for maximum vertical compactness on mobile screens
+# Custom styling for high-density mobile views and theme adaptability
 st.markdown("""
     <style>
-    /* Compact top padding so the quiz starts high up on mobile screen */
+    /* Ultra-tight vertical container for mobile screens */
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
         padding-bottom: 1rem !important;
     }
-    /* Compact Header Style */
-    h1 {
-        margin-bottom: 0px !important;
-        padding-bottom: 0px !important;
-        font-size: 26px !important;
+    
+    /* Clean, non-intrusive Start Page Title */
+    .start-title {
+        font-size: 32px !important;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 5px;
     }
-    /* English Question Styling */
+    .start-subtitle {
+        font-size: 16px;
+        text-align: center;
+        opacity: 0.8;
+        margin-bottom: 25px;
+    }
+
+    /* Aesthetically uniform progress tracker header */
+    .progress-header {
+        font-size: 16px !important;
+        font-weight: 500;
+        text-align: left;
+        margin-bottom: 0px !important;
+        opacity: 0.8;
+    }
+    
+    /* Beautifully compact question text to prevent scrolling */
     .english-question { 
-        font-size: 22px !important; 
+        font-size: 19px !important; 
         font-weight: bold; 
         text-align: center; 
-        margin: 8px 0 !important; 
+        margin: 10px 0 !important; 
     }
-    /* Make the radio button Hebrew choices large and crisp */
-    div[data-testid="stMarkdownContainer"] p { font-size: 20px !important; }
+    
+    /* Make choice lists matching and clear */
+    div[data-testid="stMarkdownContainer"] p { font-size: 19px !important; }
     .stButton button { width: 100%; }
     
-    /* Minimize spacing inside the columns */
+    /* Minimize inner system padding gaps */
     [data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
+        gap: 0.4rem !important;
+    }
+    hr {
+        margin: 8px 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -47,13 +69,13 @@ def parse_hebrew_markdown(file_path):
     matches = re.findall(pattern, content)
     
     for match in matches:
-        root_hebrew = match[0].strip()
-        root_english = match[1].strip()
-        surface_hebrew = match[2].strip()
-        surface_translit = match[3].strip()
-        surface_meaning = match[4].strip()
-        phonetic = match[5].strip()
-        root_meaning = match[6].strip()
+        root_hebrew = match.strip()
+        root_english = match.strip()
+        surface_hebrew = match.strip()
+        surface_translit = match.strip()
+        surface_meaning = match.strip()
+        phonetic = match.strip()
+        root_meaning = match.strip()
         
         full_root_string = root_hebrew
         
@@ -97,25 +119,35 @@ if "selected_option" not in st.session_state:
     st.session_state.selected_option = None
 if "answered" not in st.session_state:
     st.session_state.answered = False
+# Session parameter to track if they passed the intro splash screen
+if "quiz_started" not in st.session_state:
+    st.session_state.quiz_started = False
 
 QUIZ_DATA = st.session_state.quiz_data
 
-# --- DYNAMIC HEADER ENGINE ---
-# FIXED: Only shows the large welcome title on the very first question card.
-# From question 2 onwards, it collapses into a tight progress tracking header.
-if QUIZ_DATA and st.session_state.current_index == 0:
-    st.title("📖 Genesis Chapter 1 Root Recall")
-    st.caption("Select the correct hidden Hebrew Root based on the English meaning.")
-    st.divider()
-elif QUIZ_DATA and st.session_state.current_index < len(QUIZ_DATA):
-    st.subheader(f"📊 Question {st.session_state.current_index + 1} of {len(QUIZ_DATA)} | Score: {st.session_state.score}")
-    st.divider()
-
-# --- STREAMLIT UI ENGINE ---
+# --- APP LAYOUT RUNNER ---
 if not QUIZ_DATA:
     st.error("Could not find the lexicon file. Make sure GenesisRootWordLexicon1.md is in the same folder as app.py!")
+
+# 1. THE LANDING PAGE SPLASH SCREEN
+elif not st.session_state.quiz_started:
+    st.write("") # Tiny spacer
+    st.markdown('<div class="start-title">📖 Genesis Chapter 1<br>Root Recall</div>', unsafe_allow_html=True)
+    st.markdown('<div class="start-subtitle">Extract the hidden 3-letter Shoresh out of the verse surface text.</div>', unsafe_allow_html=True)
+    
+    # Beautiful, prominent landing button
+    if st.button("🚀 Begin Quiz", key="start_game_btn"):
+        st.session_state.quiz_started = True
+        st.rerun()
+
+# 2. THE ACTIVE INTERACTIVE QUIZ ENGINE
 elif st.session_state.current_index < len(QUIZ_DATA):
     current_q = QUIZ_DATA[st.session_state.current_index]
+    
+    # NEW COMPACT HEADER: Total clean removal of the main title block.
+    # The progress tracker matches standard body font sizing beautifully.
+    st.markdown(f'<div class="progress-header">📊 Question {st.session_state.current_index + 1} of {len(QUIZ_DATA)} | Correct: {st.session_state.score}</div>', unsafe_allow_html=True)
+    st.divider()
     
     # Question Card
     st.markdown(f'<div class="english-question">What is the Hebrew root for the word translated as: <br>🔍 "{current_q["english_meaning"]}"</div>', unsafe_allow_html=True)
@@ -152,7 +184,10 @@ elif st.session_state.current_index < len(QUIZ_DATA):
         else:
             with st.expander("💡 Reveal Surface Word Hint", expanded=False):
                 st.info(current_q["hint"])
+
+# 3. END GAME VIEW
 else:
+    st.balloons()
     st.title("🎉 Quiz Complete!")
     st.success("You finished the vocabulary list!")
     st.metric(label="Final Score", value=f"{st.session_state.score} / {len(QUIZ_DATA)}")
@@ -162,5 +197,6 @@ else:
         st.session_state.score = 0
         st.session_state.answered = False
         st.session_state.selected_option = None
+        st.session_state.quiz_started = False
         del st.session_state.quiz_data
         st.rerun()
