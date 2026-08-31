@@ -278,11 +278,10 @@ Verse 14: "Then God said, 'Let there be lights in the firmament of the heavens t
 
 Verse 15: "And let them be for lights in the firmament of the heavens to give light on the earth'; and it was so."
 
-- **נָגַהּ (N-G-H)**
-    - _The Surface Word:_ לְהָאִיר (_L'ha'ir_ / "To give light")
-    - _Phonetic Pronunciation:_ **hah-EER**
-    - _The Raw Root Meaning:_ **To break forth with brilliance, kindle, or flash clear.** It describes the active physical projection of light beams illuminating a dark surface.
-
+**כּוּן (K-U-N)**
+    - _The Surface Word:_ כֵּן (_Ken_ / "So" or "Thus")
+    - _Phonetic Pronunciation:_  **KOON**
+    - _The Raw Root Meaning:_ **To be erect, firmly established, stable, or fixed in place.** It describes something that is rendered permanent, secure, and unshakeable—signifying that when God spoke the order of creation, it immediately became an enduring, concrete reality.
 ---
 
 Verse 16: "Then God made two great lights: the greater light to rule the day, and the lesser light to rule the night. He made the stars also."
