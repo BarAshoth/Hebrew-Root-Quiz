@@ -64,7 +64,7 @@ hr {
 </style>
 """, unsafe_allow_html=True)
 
-# --- ADVANCED MARKDOWN PARSER (CLOUD VERSION) ---
+# --- ADVANCED MARKDOWN PARSER (FIXED CLOUD VERSION) ---
 def parse_hebrew_markdown(file_path):
     quiz_items = []
     try:
@@ -73,42 +73,42 @@ def parse_hebrew_markdown(file_path):
     except FileNotFoundError:
         return []
     
-    # Ultra-flexible regex that extracts elements regardless of whether they are on one line or broken into lines
-    pattern = (
-        r"\*\*(?P<r_heb>[^*]+)\s+\((?P<r_eng>[^)]+)\)\*\*"
-        r".*?"
-        r"_The Surface Word:_\s*(?P<s_heb>[^\s_\(]+)\s*\((?P<s_trans>[^/]+)/\s*\"?(?P<s_mean>[^\"]+?)\"?\)"
-        r".*?"
-        r"_Phonetic Pronunciation:_\s*\*\*(?P<phon>[^*]+)\*\*"
-        r".*?"
-        r"_The Raw Root Meaning:_\s*\*\*(?P<r_mean>[^*]+?)\*\*"
-    )
+    # 1. Break the document up by each individual root block to prevent cross-wiring completely
+    root_blocks = re.split(r"-\s+(?=\*\*[^*]+\s+\([^)]+\)\*\*)", content)
     
-    # re.DOTALL allows .*? to seamlessly cross line breaks safely
-    matches = re.finditer(pattern, content, flags=re.DOTALL)
-    
-    for match in matches:
-        root_hebrew = match.group("r_heb").strip()
-        root_english = match.group("r_eng").strip()
-        surface_hebrew = match.group("s_heb").strip()
-        surface_translit = match.group("s_trans").strip()
-        surface_meaning = match.group("s_mean").strip()
-        phonetic = match.group("phon").strip()
-        root_meaning = match.group("r_mean").strip()
+    for block in root_blocks:
+        if not block.strip():
+            continue
+            
+        # Parse out the required components explicitly from within this single isolated block
+        root_match = re.search(r"\*\*(?P<r_heb>[^*]+)\s+\((?P<r_eng>[^)]+)\)\*\*", block)
+        surface_match = re.search(r"_The Surface Word:_\s*(?P<s_text>[^\(]+)\((?P<s_trans>[^/]+)/\s*\"?(?P<s_mean>[^\"]+?)\"?\)", block)
+        phonetic_match = re.search(r"_Phonetic Pronunciation:_\s*\*\*(?P<phon>[^*]+)\*\*", block)
+        meaning_match = re.search(r"_The Raw Root Meaning:_\s*\*\*(?P<r_mean>[^*]+?)\*\*", block)
         
-        # Strip trailing formatting cleanup safely
-        surface_meaning = surface_meaning.replace('"', '').replace('_', '').strip()
-        root_meaning = root_meaning.rstrip('. ').strip()
-        
-        full_root_string = root_hebrew
-        quiz_items.append({
-            "english_meaning": surface_meaning,
-            "correct_root": full_root_string,
-            "transliteration": surface_translit,
-            "surface_word": surface_hebrew,
-            "hint": f"The word from the Hebrew text is transliterated as: \n✨ **{surface_translit}**",
-            "explanation": f"The root is {full_root_string} ({root_english}), which means '{root_meaning}'. It appeared in the text as the surface word '{surface_hebrew}' ({surface_translit})."
-        })
+        # Only add to quiz pool if all critical components exist together in this specific block
+        if root_match and surface_match and phonetic_match and meaning_match:
+            root_hebrew = root_match.group("r_heb").strip()
+            root_english = root_match.group("r_eng").strip()
+            surface_text = surface_match.group("s_text").strip()
+            surface_translit = surface_match.group("s_trans").strip()
+            surface_meaning = surface_match.group("s_mean").strip()
+            phonetic = phonetic_match.group("phon").strip()
+            root_meaning = meaning_match.group("r_mean").strip()
+            
+            # Clean up residual layout artifacts
+            surface_meaning = surface_meaning.replace('"', '').replace('_', '').strip()
+            root_meaning = root_meaning.rstrip('. ').strip()
+            
+            quiz_items.append({
+                "english_meaning": surface_meaning,
+                "correct_root": root_hebrew,
+                "transliteration": surface_translit,
+                "surface_word": surface_text,
+                "hint": f"The word from the Hebrew text is transliterated as: \n✨ **{surface_translit}**",
+                "explanation": f"The root is {root_hebrew} ({root_english}), which means '{root_meaning}'. It appeared in the text as the surface word '{surface_text}' ({surface_translit})."
+            })
+            
     return quiz_items
 
 # --- INITIALIZE SESSION STATE ---
@@ -123,12 +123,12 @@ if "quiz_data" not in st.session_state:
         RAW_DATA = RAW_DATA[:33]
         
         QUIZ_DATA = []
-        all_roots = [item["correct_root"] for item in RAW_DATA]
+        all_roots = list(set([item["correct_root"] for item in RAW_DATA]))
         
         for item in RAW_DATA:
             wrong_pool = [r for r in all_roots if r != item["correct_root"]]
             num_options = min(3, len(wrong_pool))
-            wrong_choices = random.sample(wrong_pool, num_options)
+            wrong_choices = random.sample(wrong_pool, num_options) if len(wrong_pool) >= num_options else wrong_pool
             options = wrong_choices + [item["correct_root"]]
             random.shuffle(options)
             
