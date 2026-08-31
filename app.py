@@ -73,22 +73,32 @@ def parse_hebrew_markdown(file_path):
     except FileNotFoundError:
         return []
     
-    # Robust multi-line/whitespace flexible regex pattern matching the modern block layouts
-    pattern = r"-\s+\*\*([^*]+)\s+\(([^)]+)\)\*\*(?:\s+-\s+)?_The Surface Word:_\s+([^_]+)\s+\(([^/]+)/\s*\"([^\"]+)\"\)(?:\s+-\s+)?_Phonetic Pronunciation:_\s+\*\*([^*]+)\*\*(?:\s+-\s+)?_The Raw Root Meaning:_\s+\*\*([^*]+?)\*\*(?=\n-|\n\n|\Z)"
-    matches = re.findall(pattern, content, flags=re.DOTALL)
+    # Ultra-flexible regex that extracts elements regardless of whether they are on one line or broken into lines
+    pattern = (
+        r"\*\*(?P<r_heb>[^*]+)\s+\((?P<r_eng>[^)]+)\)\*\*"
+        r".*?"
+        r"_The Surface Word:_\s*(?P<s_heb>[^\s_\(]+)\s*\((?P<s_trans>[^/]+)/\s*\"?(?P<s_mean>[^\"]+?)\"?\)"
+        r".*?"
+        r"_Phonetic Pronunciation:_\s*\*\*(?P<phon>[^*]+)\*\*"
+        r".*?"
+        r"_The Raw Root Meaning:_\s*\*\*(?P<r_mean>[^*]+?)\*\*"
+    )
     
-    for r_heb, r_eng, s_heb, s_trans, s_mean, phon, r_mean in matches:
-        root_hebrew = r_heb.strip()
-        root_english = r_eng.strip()
-        surface_hebrew = s_heb.strip()
-        surface_translit = s_trans.strip()
-        surface_meaning = s_mean.strip()
-        phonetic = phon.strip()
-        root_meaning = r_mean.strip()
+    # re.DOTALL allows .*? to seamlessly cross line breaks safely
+    matches = re.finditer(pattern, content, flags=re.DOTALL)
+    
+    for match in matches:
+        root_hebrew = match.group("r_heb").strip()
+        root_english = match.group("r_eng").strip()
+        surface_hebrew = match.group("s_heb").strip()
+        surface_translit = match.group("s_trans").strip()
+        surface_meaning = match.group("s_mean").strip()
+        phonetic = match.group("phon").strip()
+        root_meaning = match.group("r_mean").strip()
         
-        # Strip out loose inline markdown formatting leaks if any exist within raw variables
-        surface_meaning = surface_meaning.replace('"', '').replace('_', '')
-        root_meaning = root_meaning.rstrip('. ')
+        # Strip trailing formatting cleanup safely
+        surface_meaning = surface_meaning.replace('"', '').replace('_', '').strip()
+        root_meaning = root_meaning.rstrip('. ').strip()
         
         full_root_string = root_hebrew
         quiz_items.append({
@@ -105,27 +115,30 @@ def parse_hebrew_markdown(file_path):
 if "quiz_data" not in st.session_state:
     RAW_DATA = parse_hebrew_markdown("GenesisRootWordLexicon1.md")
     
-    # 1. First randomize the entire lexicon dataset
-    random.shuffle(RAW_DATA)
-    
-    # 2. Slice to limit the active session to exactly 33 items (or less if file size is small)
-    RAW_DATA = RAW_DATA[:33]
-    
-    QUIZ_DATA = []
-    all_roots = [item["correct_root"] for item in RAW_DATA]
-    
-    for item in RAW_DATA:
-        wrong_pool = [r for r in all_roots if r != item["correct_root"]]
-        num_options = min(3, len(wrong_pool))
-        wrong_choices = random.sample(wrong_pool, num_options)
-        options = wrong_choices + [item["correct_root"]]
-        random.shuffle(options)
+    if RAW_DATA:
+        # 1. First randomize the entire lexicon dataset
+        random.shuffle(RAW_DATA)
         
-        quiz_item = item.copy()
-        quiz_item["options"] = options
-        QUIZ_DATA.append(quiz_item)
+        # 2. Slice to limit the active session to exactly 33 items
+        RAW_DATA = RAW_DATA[:33]
         
-    st.session_state.quiz_data = QUIZ_DATA
+        QUIZ_DATA = []
+        all_roots = [item["correct_root"] for item in RAW_DATA]
+        
+        for item in RAW_DATA:
+            wrong_pool = [r for r in all_roots if r != item["correct_root"]]
+            num_options = min(3, len(wrong_pool))
+            wrong_choices = random.sample(wrong_pool, num_options)
+            options = wrong_choices + [item["correct_root"]]
+            random.shuffle(options)
+            
+            quiz_item = item.copy()
+            quiz_item["options"] = options
+            QUIZ_DATA.append(quiz_item)
+            
+        st.session_state.quiz_data = QUIZ_DATA
+    else:
+        st.session_state.quiz_data = []
 
 if "current_index" not in st.session_state:
     st.session_state.current_index = 0
@@ -170,8 +183,8 @@ elif st.session_state.current_index < len(QUIZ_DATA):
         choice = st.radio("", current_q["options"], key=f"radio_{st.session_state.current_index}", label_visibility="collapsed")
         submit_disabled = st.session_state.answered
         
-        btn_cols = st.columns()
-        with btn_cols:
+        btn_cols = st.columns(2)
+        with btn_cols[0]:
             if st.button("Submit", disabled=submit_disabled, key=f"sub_{st.session_state.current_index}"):
                 st.session_state.selected_option = choice
                 st.session_state.answered = True
@@ -179,7 +192,7 @@ elif st.session_state.current_index < len(QUIZ_DATA):
                     st.session_state.score += 1
                 st.rerun()
                 
-        with btn_cols:
+        with btn_cols[1]:
             if st.session_state.answered:
                 if st.button("Next Word ➡️", key=f"next_{st.session_state.current_index}"):
                     st.session_state.current_index += 1
